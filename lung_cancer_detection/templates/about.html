@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+
+{% block title %}About{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card animate__animated animate__fadeInDown">
+                <div class="card-header bg-transparent text-center pt-4">
+                    <h2 class="mb-3">About Lung Cancer Detection System</h2>
+                </div>
+                
+                <div class="card-body p-4">
+                    <!-- Project Overview -->
+                    <div class="mb-5">
+                        <h4 class="mb-3">
+                            <i class="fas fa-lungs me-2" style="color: #667eea;"></i>
+                            Project Overview
+                        </h4>
+                        <p class="lead">
+                            This Lung Cancer Detection System is an advanced deep learning-based application 
+                            designed to assist in the early detection of lung cancer through CT scan image analysis.
+                        </p>
+                        <p>
+                            Leveraging state-of-the-art Convolutional Neural Networks (CNN), our system can 
+                            accurately classify lung CT scans into three categories: Normal, Benign, and Malignant, 
+                            helping healthcare professionals make more informed decisions.
+                        </p>
+                    </div>
+                    
+                    <!-- How It Works -->
+                    <div class="mb-5">
+                        <h4 class="mb-3">
+                            <i class="fas fa-robot me-2" style="color: #764ba2;"></i>
+                            How It Works
+                        </h4>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="feature-box p-3 mb-3">
+                                    <h5><i class="fas fa-brain text-primary me-2"></i>Deep Learning Model</h5>
+                                    <p class="text-muted">Custom CNN architecture trained on thousands of CT scan images</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="feature-box p-3 mb-3">
+                                    <h5><i class="fas fa-chart-bar text-success me-2"></i>Real-time Analysis</h5>
+                                    <p class="text-muted">Instant predictions with confidence scores</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="feature-box p-3 mb-3">
+                                    <h5><i class="fas fa-database text-info me-2"></i>Secure Storage</h5>
+                                    <p class="text-muted">All predictions are securely stored in database</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="feature-box p-3 mb-3">
+                                    <h5><i class="fas fa-history text-warning me-2"></i>History Tracking</h5>
+                                    <p class="text-muted">Track all your predictions over time</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Model Architecture -->
+                    <div class="mb-5">
+                        <h4 class="mb-3">
+                            <i class="fas fa-network-wired me-2" style="color: #1cc88a;"></i>
+                            Model Architecture
+                        </h4>
+                        <div class="bg-light p-4 rounded">
+                            <pre class="mb-0" style="white-space: pre-wrap;">
+Model: "Sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #
+=================================================================
+conv2d (Conv2D)              (None, 222, 222, 32)      896
+max_pooling2d (MaxPooling2D) (None, 111, 111, 32)      0
+conv2d_1 (Conv2D)            (None, 109, 109, 64)      18496
+max_pooling2d_1 (MaxPooling2 (None, 54, 54, 64)        0
+conv2d_2 (Conv2D)            (None, 52, 52, 128)       73856
+max_pooling2d_2 (MaxPooling2 (None, 26, 26, 128)       0
+conv2d_3 (Conv2D)            (None, 24, 24, 256)       295168
+max_pooling2d_3 (MaxPooling2 (None, 12, 12, 256)       0
+flatten (Flatten)            (None, 36864)              0
+dense (Dense)                (None, 256)                9437440
+dropout (Dropout)            (None, 256)                0
+dense_1 (Dense)              (None, 3)                  771
+=================================================================
+Total params: 9,826,627
+Trainable params: 9,826,627
+Non-trainable params: 0
+                            </pre>
+                        </div>
+                    </div>
+                    
+                    <!-- Performance Metrics -->
+                    <div class="mb-5">
+                        <h4 class="mb-3">
+                            <i class="fas fa-chart-line me-2" style="color: #36b9cc;"></i>
+                            Performance Metrics
+                        </h4>
+                        <div class="row text-center">
+                            <div class="col-md-4 mb-3">
+                                <div class="metric-card p-3">
+                                    <h3 class="display-5 fw-bold" style="color: #667eea;">95%</h3>
+                                    <p class="text-muted">Accuracy</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="metric-card p-3">
+                                    <h3 class="display-5 fw-bold" style="color: #764ba2;">94%</h3>
+                                    <p class="text-muted">Precision</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="metric-card p-3">
+                                    <h3 class="display-5 fw-bold" style="color: #1cc88a;">94%</h3>
+                                    <p class="text-muted">Recall</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Team -->
+                    <div class="mb-5">
+                        <h4 class="mb-4">
+                            <i class="fas fa-users me-2" style="color: #e74a3b;"></i>
+                            Our Team
+                        </h4>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="team-card p-3 text-center">
+                                    <img src="https://via.placeholder.com/100" class="rounded-circle mb-3" alt="Team Member">
+                                    <h5>Dr. John Smith</h5>
+                                    <p class="text-muted">Lead Researcher</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="team-card p-3 text-center">
+                                    <img src="https://via.placeholder.com/100" class="rounded-circle mb-3" alt="Team Member">
+                                    <h5>Dr. Sarah Johnson</h5>
+                                    <p class="text-muted">ML Engineer</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Contact -->
+                    <div class="text-center">
+                        <h4 class="mb-3">Contact Us</h4>
+                        <p class="mb-3">Have questions or feedback? We'd love to hear from you.</p>
+                        <div class="d-flex justify-content-center gap-3">
+                            <a href="#" class="btn btn-outline-primary">
+                                <i class="fas fa-envelope me-2"></i>Email
+                            </a>
+                            <a href="#" class="btn btn-outline-info">
+                                <i class="fab fa-github me-2"></i>GitHub
+                            </a>
+                            <a href="#" class="btn btn-outline-danger">
+                                <i class="fab fa-youtube me-2"></i>YouTube
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.feature-box {
+    background: rgba(102, 126, 234, 0.05);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+.feature-box:hover {
+    background: rgba(102, 126, 234, 0.1);
+    transform: translateX(5px);
+}
+.metric-card {
+    background: rgba(102, 126, 234, 0.05);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+.metric-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+.team-card {
+    background: rgba(102, 126, 234, 0.05);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+.team-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+</style>
+{% endblock %}

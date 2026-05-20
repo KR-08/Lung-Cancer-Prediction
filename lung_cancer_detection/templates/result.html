@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Prediction Result{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card animate__animated animate__fadeInDown">
+                <div class="card-header bg-transparent text-center pt-4">
+                    <h2 class="mb-3">Prediction Result</h2>
+                </div>
+                
+                <div class="card-body p-4">
+                    <!-- Result Image -->
+                    <div class="text-center mb-4">
+                        <img src="{{ image_path }}" class="img-fluid rounded" style="max-height: 300px;" alt="Uploaded CT Scan">
+                    </div>
+                    
+                    <!-- Result Card -->
+                    <div class="result-card p-4 mb-4 text-center bg-{{ color }} bg-gradient text-white rounded">
+                        <h3 class="mb-3">Classification: {{ prediction }}</h3>
+                        <div class="display-4 mb-3">
+                            <i class="fas fa-{{ 'check-circle' if prediction == 'Normal' else 'exclamation-triangle' if prediction == 'Malignant' else 'heartbeat' }}"></i>
+                        </div>
+                        <div class="progress mb-3" style="height: 30px;">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-white" 
+                                 role="progressbar" 
+                                 style="width: {{ confidence * 100 }}%; color: #000;"
+                                 aria-valuenow="{{ confidence * 100 }}" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="100">
+                                Confidence: {{ "%.2f"|format(confidence * 100) }}%
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Description -->
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        {{ description }}
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="d-flex justify-content-center gap-3 mt-4">
+                        <a href="{{ url_for('predict') }}" class="btn btn-primary">
+                            <i class="fas fa-upload me-2"></i>New Prediction
+                        </a>
+                        <a href="{{ url_for('history') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-history me-2"></i>View History
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.result-card {
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+.bg-success { background: linear-gradient(135deg, #1cc88a 0%, #13855c 100%); }
+.bg-danger { background: linear-gradient(135deg, #e74a3b 0%, #be2617 100%); }
+.bg-info { background: linear-gradient(135deg, #36b9cc 0%, #258391 100%); }
+.progress {
+    border-radius: 15px;
+    overflow: hidden;
+}
+</style>
+{% endblock %}

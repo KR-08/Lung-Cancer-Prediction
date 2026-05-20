@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Hero Section -->
+    <div class="row min-vh-75 align-items-center">
+        <div class="col-lg-6 text-white animate__animated animate__fadeInLeft">
+            <h1 class="display-4 fw-bold mb-4">
+                Early Lung Cancer Detection
+                <span class="d-block mt-2" style="font-size: 0.7em; color: #ffd700;">with Deep Learning</span>
+            </h1>
+            <p class="lead mb-4">
+                Harness the power of artificial intelligence for early and accurate 
+                lung cancer detection. Our advanced deep learning model analyzes CT 
+                scans with high precision to identify benign, malignant, and normal cases.
+            </p>
+            
+            {% if not current_user.is_authenticated %}
+                <div class="mt-5">
+                    <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg me-3">
+                        <i class="fas fa-user-plus me-2"></i>Get Started
+                    </a>
+                    <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-sign-in-alt me-2"></i>Login
+                    </a>
+                </div>
+            {% else %}
+                <a href="{{ url_for('predict') }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-microscope me-2"></i>Start Prediction
+                </a>
+            {% endif %}
+        </div>
+        
+        <div class="col-lg-6 animate__animated animate__fadeInRight">
+            <div class="card p-4">
+                <h3 class="text-center mb-4">System Features</h3>
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="feature-card text-center p-3">
+                            <i class="fas fa-brain fa-3x mb-3" style="color: #667eea;"></i>
+                            <h5>Deep Learning</h5>
+                            <p class="text-muted">Advanced CNN architecture for accurate predictions</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="feature-card text-center p-3">
+                            <i class="fas fa-bolt fa-3x mb-3" style="color: #764ba2;"></i>
+                            <h5>Fast Analysis</h5>
+                            <p class="text-muted">Get results in seconds with real-time processing</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="feature-card text-center p-3">
+                            <i class="fas fa-chart-line fa-3x mb-3" style="color: #1cc88a;"></i>
+                            <h5>Track History</h5>
+                            <p class="text-muted">Monitor all your predictions over time</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="feature-card text-center p-3">
+                            <i class="fas fa-shield-alt fa-3x mb-3" style="color: #36b9cc;"></i>
+                            <h5>Secure & Private</h5>
+                            <p class="text-muted">Your medical data is encrypted and protected</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Statistics Section -->
+    <div class="row mt-5 pt-5">
+        <div class="col-12">
+            <div class="card p-4">
+                <h3 class="text-center mb-4">System Performance</h3>
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <div class="stat-item">
+                            <h2 class="display-4 fw-bold" style="color: #667eea;">95%</h2>
+                            <p class="text-muted">Accuracy</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-item">
+                            <h2 class="display-4 fw-bold" style="color: #764ba2;">3</h2>
+                            <p class="text-muted">Classes</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-item">
+                            <h2 class="display-4 fw-bold" style="color: #1cc88a;">5000+</h2>
+                            <p class="text-muted">Images Trained</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-item">
+                            <h2 class="display-4 fw-bold" style="color: #36b9cc;">Real-time</h2>
+                            <p class="text-muted">Processing</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- How It Works -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <h2 class="text-center text-white mb-5">How It Works</h2>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center p-4 h-100">
+                <div class="step-number">1</div>
+                <i class="fas fa-cloud-upload-alt fa-4x mb-3" style="color: #667eea;"></i>
+                <h4>Upload Image</h4>
+                <p class="text-muted">Upload a CT scan image in JPG, PNG, or JPEG format</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center p-4 h-100">
+                <div class="step-number">2</div>
+                <i class="fas fa-robot fa-4x mb-3" style="color: #764ba2;"></i>
+                <h4>AI Analysis</h4>
+                <p class="text-muted">Our deep learning model analyzes the image</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center p-4 h-100">
+                <div class="step-number">3</div>
+                <i class="fas fa-file-medical-alt fa-4x mb-3" style="color: #1cc88a;"></i>
+                <h4>Get Results</h4>
+                <p class="text-muted">Receive detailed prediction with confidence score</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.min-vh-75 {
+    min-height: 75vh;
+}
+.feature-card {
+    background: rgba(102, 126, 234, 0.1);
+    border-radius: 15px;
+    transition: all 0.3s ease;
+}
+.feature-card:hover {
+    transform: translateY(-5px);
+    background: rgba(102, 126, 234, 0.2);
+}
+.stat-item {
+    padding: 20px;
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.1);
+}
+.step-number {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin: 0 auto 20px;
+}
+</style>
+{% endblock %}

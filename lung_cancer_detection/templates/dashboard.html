@@ -1,0 +1,910 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="card p-4 mb-4 animate__animated animate__fadeInDown">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h2 class="mb-2">Welcome, {{ current_user.username }}!</h2>
+                        <p class="text-muted mb-0">Member since: {{ current_user.date_joined.strftime('%B %d, %Y') }}</p>
+                    </div>
+                    <a href="{{ url_for('predict') }}" class="btn btn-primary">
+                        <i class="fas fa-plus-circle me-2"></i>New Prediction
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card stat-card p-3 animate__animated animate__fadeInLeft" style="animation-delay: 0.1s">
+                <div class="d-flex align-items-center">
+                    <div class="stat-icon bg-primary">
+                        <i class="fas fa-microscope"></i>
+                    </div>
+                    <div class="ms-3">
+                        <h3 class="mb-0">{{ total_predictions }}</h3>
+                        <p class="text-muted mb-0">Total Predictions</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card stat-card p-3 animate__animated animate__fadeInLeft" style="animation-delay: 0.2s">
+                <div class="d-flex align-items-center">
+                    <div class="stat-icon bg-success">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="ms-3">
+                        <h3 class="mb-0">{{ normal_count }}</h3>
+                        <p class="text-muted mb-0">Normal Cases</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card stat-card p-3 animate__animated animate__fadeInLeft" style="animation-delay: 0.3s">
+                <div class="d-flex align-items-center">
+                    <div class="stat-icon bg-info">
+                        <i class="fas fa-heartbeat"></i>
+                    </div>
+                    <div class="ms-3">
+                        <h3 class="mb-0">{{ benign_count }}</h3>
+                        <p class="text-muted mb-0">Benign Cases</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card stat-card p-3 animate__animated animate__fadeInLeft" style="animation-delay: 0.4s">
+                <div class="d-flex align-items-center">
+                    <div class="stat-icon bg-danger">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="ms-3">
+                        <h3 class="mb-0">{{ malignant_count }}</h3>
+                        <p class="text-muted mb-0">Malignant Cases</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Chart -->
+        <div class="col-md-6 mb-4">
+            <div class="card p-4 h-100 animate__animated animate__fadeInUp">
+                <h4 class="mb-4">Prediction Distribution</h4>
+                <canvas id="predictionChart" style="max-height: 300px;"></canvas>
+            </div>
+        </div>
+        
+        <!-- Recent Predictions -->
+        <div class="col-md-6 mb-4">
+            <div class="card p-4 h-100 animate__animated animate__fadeInUp">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="mb-0">Recent Predictions</h4>
+                    <a href="{{ url_for('history') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                
+                {% if recent_predictions %}
+                    <div class="list-group">
+                        {% for pred in recent_predictions %}
+                            <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="badge bg-{{ 'success' if pred.prediction == 'Benign' else 'danger' if pred.prediction == 'Malignant' else 'info' }} me-2">
+                                        {{ pred.prediction }}
+                                    </span>
+                                    <small class="text-muted">{{ pred.date_predicted.strftime('%Y-%m-%d %H:%M') }}</small>
+                                </div>
+                                <span class="badge bg-secondary">{{ "%.2f"|format(pred.confidence * 100) }}%</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-history fa-4x text-muted mb-3"></i>
+                        <p class="text-muted">No predictions yet</p>
+                        <a href="{{ url_for('predict') }}" class="btn btn-primary btn-sm">
+                            Make your first prediction
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card p-4 animate__animated animate__fadeInUp">
+                <h4 class="mb-4">Quick Actions</h4>
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <a href="{{ url_for('predict') }}" class="btn btn-outline-primary w-100 py-3">
+                            <i class="fas fa-upload mb-2 fa-2x d-block"></i>
+                            Upload New Scan
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{{ url_for('history') }}" class="btn btn-outline-info w-100 py-3">
+                            <i class="fas fa-history mb-2 fa-2x d-block"></i>
+                            View History
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="button" class="btn btn-outline-success w-100 py-3" data-bs-toggle="modal" data-bs-target="#downloadReportModal">
+                            <i class="fas fa-download mb-2 fa-2x d-block"></i>
+                            Download Report
+                        </button>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="button" class="btn btn-outline-warning w-100 py-3" data-bs-toggle="modal" data-bs-target="#helpModal">
+                            <i class="fas fa-question-circle mb-2 fa-2x d-block"></i>
+                            Get Help
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Activity Timeline -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card p-4 animate__animated animate__fadeInUp">
+                <h4 class="mb-4">Activity Timeline</h4>
+                <div class="timeline">
+                    {% if recent_predictions %}
+                        {% for pred in recent_predictions[:5] %}
+                        <div class="timeline-item">
+                            <div class="timeline-badge bg-{{ 'success' if pred.prediction == 'Benign' else 'danger' if pred.prediction == 'Malignant' else 'info' }}">
+                                <i class="fas fa-{{ 'heartbeat' if pred.prediction == 'Benign' else 'exclamation-triangle' if pred.prediction == 'Malignant' else 'check-circle' }}"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>{{ pred.prediction }} Detection</h6>
+                                <p class="text-muted mb-0">
+                                    <i class="fas fa-clock me-1"></i>{{ pred.date_predicted.strftime('%B %d, %Y at %H:%M') }}
+                                </p>
+                                <p class="mb-0">Confidence: {{ "%.2f"|format(pred.confidence * 100) }}%</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted text-center">No activity yet</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Download Report Modal -->
+<div class="modal fade" id="downloadReportModal" tabindex="-1" aria-labelledby="downloadReportModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="downloadReportModalLabel">
+                    <i class="fas fa-download me-2"></i>Download Report
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <ul class="nav nav-tabs mb-4" id="reportTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="pdf-tab" data-bs-toggle="tab" data-bs-target="#pdf" type="button" role="tab">PDF Report</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="excel-tab" data-bs-toggle="tab" data-bs-target="#excel" type="button" role="tab">Excel Report</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="summary-tab" data-bs-toggle="tab" data-bs-target="#summary" type="button" role="tab">Summary Report</button>
+                    </li>
+                </ul>
+                
+                <div class="tab-content" id="reportTabContent">
+                    <!-- PDF Report Tab -->
+                    <div class="tab-pane fade show active" id="pdf" role="tabpanel">
+                        <div class="report-preview p-3 bg-light rounded mb-3">
+                            <h6 class="mb-3">Report Preview</h6>
+                            <div class="report-content">
+                                <div class="text-center mb-3">
+                                    <h5>Lung Cancer Detection Report</h5>
+                                    <p class="text-muted">Generated for {{ current_user.username }}</p>
+                                    <p class="text-muted">{{ now().strftime('%B %d, %Y') }}</p>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-6">
+                                        <strong>Total Predictions:</strong> {{ total_predictions }}
+                                    </div>
+                                    <div class="col-6">
+                                        <strong>Member Since:</strong> {{ current_user.date_joined.strftime('%B %d, %Y') }}
+                                    </div>
+                                </div>
+                                
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Category</th>
+                                            <th>Count</th>
+                                            <th>Percentage</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Normal</td>
+                                            <td>{{ normal_count }}</td>
+                                            <td>{{ "%.1f"|format((normal_count/total_predictions*100) if total_predictions > 0 else 0) }}%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Benign</td>
+                                            <td>{{ benign_count }}</td>
+                                            <td>{{ "%.1f"|format((benign_count/total_predictions*100) if total_predictions > 0 else 0) }}%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Malignant</td>
+                                            <td>{{ malignant_count }}</td>
+                                            <td>{{ "%.1f"|format((malignant_count/total_predictions*100) if total_predictions > 0 else 0) }}%</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <div class="report-options">
+                            <h6 class="mb-3">Report Options</h6>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="includeCharts" checked>
+                                        <label class="form-check-label" for="includeCharts">
+                                            Include Charts
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="includeDetails" checked>
+                                        <label class="form-check-label" for="includeDetails">
+                                            Include Detailed Predictions
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="includeImages">
+                                        <label class="form-check-label" for="includeImages">
+                                            Include Images (Large File)
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="includeStats" checked>
+                                        <label class="form-check-label" for="includeStats">
+                                            Include Statistics
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Excel Report Tab -->
+                    <div class="tab-pane fade" id="excel" role="tabpanel">
+                        <div class="excel-options">
+                            <h6 class="mb-3">Excel Report Options</h6>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Date Range</label>
+                                    <select class="form-select">
+                                        <option>Last 7 days</option>
+                                        <option>Last 30 days</option>
+                                        <option>Last 90 days</option>
+                                        <option>All time</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Data Format</label>
+                                    <select class="form-select">
+                                        <option>Detailed (All columns)</option>
+                                        <option>Summary only</option>
+                                        <option>With formulas</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="pivotTables">
+                                        <label class="form-check-label" for="pivotTables">
+                                            Include Pivot Tables
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Summary Report Tab -->
+                    <div class="tab-pane fade" id="summary" role="tabpanel">
+                        <div class="summary-preview">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6>Executive Summary</h6>
+                                    <p>This report summarizes your lung cancer prediction activity from 
+                                       {{ current_user.date_joined.strftime('%B %d, %Y') }} to present.</p>
+                                    
+                                    <div class="row mt-3">
+                                        <div class="col-4 text-center">
+                                            <div class="summary-stat">
+                                                <h3 class="text-primary">{{ total_predictions }}</h3>
+                                                <small>Total Scans</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-4 text-center">
+                                            <div class="summary-stat">
+                                                <h3 class="text-success">{{ "%.1f"|format((benign_count + normal_count)/total_predictions*100 if total_predictions > 0 else 0) }}%</h3>
+                                                <small>Healthy Rate</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-4 text-center">
+                                            <div class="summary-stat">
+                                                <h3 class="text-danger">{{ malignant_count }}</h3>
+                                                <small>Critical Cases</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" onclick="generateReport()">
+                    <i class="fas fa-download me-2"></i>Generate Report
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Help Modal -->
+<div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title" id="helpModalLabel">
+                    <i class="fas fa-question-circle me-2"></i>Help & Support
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <ul class="nav nav-pills mb-4" id="helpTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="faq-tab" data-bs-toggle="pill" data-bs-target="#faq" type="button" role="tab">FAQ</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="guide-tab" data-bs-toggle="pill" data-bs-target="#guide" type="button" role="tab">User Guide</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="contact-tab" data-bs-toggle="pill" data-bs-target="#contact" type="button" role="tab">Contact Support</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="tutorial-tab" data-bs-toggle="pill" data-bs-target="#tutorial" type="button" role="tab">Tutorials</button>
+                    </li>
+                </ul>
+                
+                <div class="tab-content" id="helpTabContent">
+                    <!-- FAQ Tab -->
+                    <div class="tab-pane fade show active" id="faq" role="tabpanel">
+                        <div class="accordion" id="faqAccordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                        How accurate is the lung cancer detection?
+                                    </button>
+                                </h2>
+                                <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        Our deep learning model achieves approximately 95% accuracy on test datasets. However, it's important to note that this tool is for screening purposes only and should not replace professional medical diagnosis.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                        What image formats are supported?
+                                    </button>
+                                </h2>
+                                <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        We support common image formats including JPG, JPEG, PNG, and DICOM files. Images should be clear CT scans for best results.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                        Is my data secure?
+                                    </button>
+                                </h2>
+                                <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        Yes, all medical images and personal data are encrypted and stored securely. We follow HIPAA guidelines for medical data protection.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                                        How long are predictions stored?
+                                    </button>
+                                </h2>
+                                <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        Predictions are stored indefinitely in your account history. You can delete individual predictions or export them for your records.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
+                                        Can I share results with my doctor?
+                                    </button>
+                                </h2>
+                                <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        Yes, you can export reports as PDF or share prediction links directly with your healthcare providers.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- User Guide Tab -->
+                    <div class="tab-pane fade" id="guide" role="tabpanel">
+                        <div class="guide-content">
+                            <h6 class="mb-3">Quick Start Guide</h6>
+                            
+                            <div class="guide-step mb-4">
+                                <div class="step-number">1</div>
+                                <div class="step-content">
+                                    <h6>Upload a CT Scan</h6>
+                                    <p class="text-muted">Navigate to the Predict page and upload a clear CT scan image (JPG, PNG, or DICOM format).</p>
+                                </div>
+                            </div>
+                            
+                            <div class="guide-step mb-4">
+                                <div class="step-number">2</div>
+                                <div class="step-content">
+                                    <h6>Wait for Analysis</h6>
+                                    <p class="text-muted">Our AI model will analyze the image and provide a prediction within seconds.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="guide-step mb-4">
+                                <div class="step-number">3</div>
+                                <div class="step-content">
+                                    <h6>Review Results</h6>
+                                    <p class="text-muted">View the prediction with confidence score and detailed information about the finding.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="guide-step mb-4">
+                                <div class="step-number">4</div>
+                                <div class="step-content">
+                                    <h6>Track History</h6>
+                                    <p class="text-muted">Access all your previous predictions in the History section for comparison and tracking.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="guide-step mb-4">
+                                <div class="step-number">5</div>
+                                <div class="step-content">
+                                    <h6>Export Reports</h6>
+                                    <p class="text-muted">Download comprehensive reports for your records or to share with healthcare providers.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Contact Support Tab -->
+                    <div class="tab-pane fade" id="contact" role="tabpanel">
+                        <div class="contact-support">
+                            <form id="supportForm">
+                                <div class="mb-3">
+                                    <label for="subject" class="form-label">Subject</label>
+                                    <input type="text" class="form-control" id="subject" required>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="category" class="form-label">Category</label>
+                                    <select class="form-select" id="category">
+                                        <option>Technical Issue</option>
+                                        <option>Account Related</option>
+                                        <option>Prediction Related</option>
+                                        <option>Billing Question</option>
+                                        <option>Feature Request</option>
+                                        <option>Other</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="message" class="form-label">Message</label>
+                                    <textarea class="form-control" id="message" rows="5" required></textarea>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="attachment" class="form-label">Attachment (optional)</label>
+                                    <input type="file" class="form-control" id="attachment">
+                                </div>
+                                
+                                <div class="mb-3 form-check">
+                                    <input type="checkbox" class="form-check-input" id="urgent">
+                                    <label class="form-check-label" for="urgent">Mark as urgent</label>
+                                </div>
+                                
+                                <button type="button" class="btn btn-primary" onclick="submitSupportTicket()">
+                                    <i class="fas fa-paper-plane me-2"></i>Submit Ticket
+                                </button>
+                            </form>
+                            
+                            <hr class="my-4">
+                            
+                            <div class="alternative-contact">
+                                <h6 class="mb-3">Alternative Contact Methods</h6>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <div class="contact-card p-3">
+                                            <i class="fas fa-envelope fa-2x text-primary mb-2"></i>
+                                            <h6>Email Support</h6>
+                                            <p class="text-muted">support@lungcancerdetection.com</p>
+                                            <small>Response within 24 hours</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <div class="contact-card p-3">
+                                            <i class="fas fa-phone fa-2x text-success mb-2"></i>
+                                            <h6>Phone Support</h6>
+                                            <p class="text-muted">+1 (800) 123-4567</p>
+                                            <small>Mon-Fri, 9AM-5PM EST</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <div class="contact-card p-3">
+                                            <i class="fas fa-comment fa-2x text-info mb-2"></i>
+                                            <h6>Live Chat</h6>
+                                            <p class="text-muted">Available 24/7</p>
+                                            <button class="btn btn-sm btn-info text-white" onclick="startLiveChat()">Start Chat</button>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <div class="contact-card p-3">
+                                            <i class="fab fa-whatsapp fa-2x text-success mb-2"></i>
+                                            <h6>WhatsApp</h6>
+                                            <p class="text-muted">+1 (800) 123-4567</p>
+                                            <button class="btn btn-sm btn-success" onclick="window.open('https://wa.me/18001234567')">Message Us</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tutorials Tab -->
+                    <div class="tab-pane fade" id="tutorial" role="tabpanel">
+                        <div class="tutorials">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <div class="tutorial-card">
+                                        <div class="ratio ratio-16x9">
+                                            <iframe src="https://www.youtube.com/embed/demo1" title="YouTube video" allowfullscreen></iframe>
+                                        </div>
+                                        <div class="tutorial-info p-3">
+                                            <h6>Getting Started with Lung Cancer Detection</h6>
+                                            <p class="text-muted small">Learn the basics of using our platform</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <div class="tutorial-card">
+                                        <div class="ratio ratio-16x9">
+                                            <iframe src="https://www.youtube.com/embed/demo2" title="YouTube video" allowfullscreen></iframe>
+                                        </div>
+                                        <div class="tutorial-info p-3">
+                                            <h6>Understanding Prediction Results</h6>
+                                            <p class="text-muted small">How to interpret your prediction results</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <div class="tutorial-card">
+                                        <div class="ratio ratio-16x9">
+                                            <iframe src="https://www.youtube.com/embed/demo3" title="YouTube video" allowfullscreen></iframe>
+                                        </div>
+                                        <div class="tutorial-info p-3">
+                                            <h6>Exporting and Sharing Reports</h6>
+                                            <p class="text-muted small">Learn how to share results with your doctor</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <div class="tutorial-card">
+                                        <div class="ratio ratio-16x9">
+                                            <iframe src="https://www.youtube.com/embed/demo4" title="YouTube video" allowfullscreen></iframe>
+                                        </div>
+                                        <div class="tutorial-info p-3">
+                                            <h6>Best Practices for CT Scan Upload</h6>
+                                            <p class="text-muted small">Tips for getting the most accurate predictions</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast for notifications -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto">Notification</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+        </div>
+        <div class="toast-body" id="toastMessage"></div>
+    </div>
+</div>
+
+<style>
+.stat-card {
+    border: none;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+}
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: white;
+}
+.stat-icon.bg-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+.stat-icon.bg-success { background: linear-gradient(135deg, #1cc88a 0%, #13855c 100%); }
+.stat-icon.bg-info { background: linear-gradient(135deg, #36b9cc 0%, #258391 100%); }
+.stat-icon.bg-danger { background: linear-gradient(135deg, #e74a3b 0%, #be2617 100%); }
+
+/* Timeline styles */
+.timeline {
+    position: relative;
+    padding: 20px 0;
+}
+.timeline:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 20px;
+    height: 100%;
+    width: 2px;
+    background: #e9ecef;
+}
+.timeline-item {
+    position: relative;
+    padding-left: 50px;
+    margin-bottom: 20px;
+}
+.timeline-badge {
+    position: absolute;
+    left: 10px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+.timeline-content {
+    padding: 10px 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+/* Guide steps */
+.guide-step {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+.step-number {
+    width: 30px;
+    height: 30px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    flex-shrink: 0;
+}
+.step-content {
+    flex-grow: 1;
+}
+
+/* Contact cards */
+.contact-card {
+    background: #f8f9fa;
+    border-radius: 10px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+.contact-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+
+/* Tutorial cards */
+.tutorial-card {
+    background: #f8f9fa;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+.tutorial-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+.tutorial-info {
+    background: white;
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Prediction Chart
+const ctx = document.getElementById('predictionChart').getContext('2d');
+new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Normal', 'Benign', 'Malignant'],
+        datasets: [{
+            data: [{{ normal_count }}, {{ benign_count }}, {{ malignant_count }}],
+            backgroundColor: [
+                '#36b9cc',
+                '#1cc88a',
+                '#e74a3b'
+            ],
+            borderWidth: 0
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        },
+        cutout: '70%'
+    }
+});
+
+// Function to generate report
+function generateReport() {
+    showToast('Generating report...', 'info');
+    
+    // Simulate report generation
+    setTimeout(() => {
+        showToast('Report generated successfully! Downloading...', 'success');
+        
+        // Create a dummy download (in real app, this would trigger actual file download)
+        const link = document.createElement('a');
+        link.href = '#';
+        link.download = 'lung_cancer_report.pdf';
+        link.click();
+        
+        // Close modal after download
+        setTimeout(() => {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('downloadReportModal'));
+            modal.hide();
+        }, 1000);
+    }, 2000);
+}
+
+// Function to submit support ticket
+function submitSupportTicket() {
+    const subject = document.getElementById('subject').value;
+    const category = document.getElementById('category').value;
+    const message = document.getElementById('message').value;
+    
+    if (!subject || !message) {
+        showToast('Please fill in all required fields', 'warning');
+        return;
+    }
+    
+    showToast('Submitting support ticket...', 'info');
+    
+    // Simulate ticket submission
+    setTimeout(() => {
+        showToast('Support ticket submitted successfully! We\'ll respond within 24 hours.', 'success');
+        
+        // Reset form
+        document.getElementById('subject').value = '';
+        document.getElementById('message').value = '';
+        document.getElementById('urgent').checked = false;
+        
+        // Close modal after submission
+        setTimeout(() => {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('helpModal'));
+            modal.hide();
+        }, 1500);
+    }, 1500);
+}
+
+// Function to start live chat
+function startLiveChat() {
+    showToast('Connecting to live chat...', 'info');
+    setTimeout(() => {
+        window.open('https://tawk.to/chat', '_blank');
+    }, 1000);
+}
+
+// Function to show toast notifications
+function showToast(message, type = 'info') {
+    const toast = document.getElementById('liveToast');
+    const toastBody = document.getElementById('toastMessage');
+    
+    // Set message
+    toastBody.textContent = message;
+    
+    // Set color based on type
+    toast.classList.remove('bg-info', 'bg-success', 'bg-warning', 'bg-danger');
+    if (type === 'success') {
+        toast.classList.add('bg-success', 'text-white');
+    } else if (type === 'warning') {
+        toast.classList.add('bg-warning');
+    } else if (type === 'danger') {
+        toast.classList.add('bg-danger', 'text-white');
+    } else {
+        toast.classList.add('bg-info', 'text-white');
+    }
+    
+    // Show toast
+    const bsToast = new bootstrap.Toast(toast);
+    bsToast.show();
+}
+</script>
+{% endblock %}

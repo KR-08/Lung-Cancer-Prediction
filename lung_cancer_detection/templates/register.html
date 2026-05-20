@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card animate__animated animate__fadeInDown">
+                <div class="card-header bg-transparent text-center pt-4">
+                    <h2 class="mb-3">Create Account</h2>
+                    <p class="text-muted">Join us for early lung cancer detection</p>
+                </div>
+                
+                <div class="card-body p-4">
+                    <form method="POST" action="{{ url_for('register') }}" onsubmit="return validateForm('registerForm')" id="registerForm">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                <input type="text" class="form-control" id="username" name="username" 
+                                       pattern="[A-Za-z0-9]{3,20}" title="Username must be 3-20 characters alphanumeric" required>
+                            </div>
+                            <div class="invalid-feedback">Please enter a valid username (3-20 characters alphanumeric).</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+                            <div class="invalid-feedback">Please enter a valid email address.</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                <input type="password" class="form-control" id="password" name="password" 
+                                       pattern=".{6,}" title="Password must be at least 6 characters" required>
+                            </div>
+                            <div class="invalid-feedback">Password must be at least 6 characters.</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="confirm_password" class="form-label">Confirm Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                <input type="password" class="form-control" id="confirm_password" name="confirm_password" 
+                                       oninput="checkPasswordMatch()" required>
+                            </div>
+                            <div id="passwordMatch" class="invalid-feedback">Passwords do not match.</div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-user-plus me-2"></i>Register
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="text-center">
+                        <p class="mb-0">Already have an account? 
+                            <a href="{{ url_for('login') }}" class="text-primary">Login here</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function checkPasswordMatch() {
+    var password = document.getElementById('password');
+    var confirm_password = document.getElementById('confirm_password');
+    
+    if (password.value !== confirm_password.value) {
+        confirm_password.setCustomValidity('Passwords do not match');
+        document.getElementById('passwordMatch').style.display = 'block';
+    } else {
+        confirm_password.setCustomValidity('');
+        document.getElementById('passwordMatch').style.display = 'none';
+    }
+}
+</script>
+{% endblock %}
