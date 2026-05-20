@@ -1,4 +1,4 @@
-# 🫁 Lung Cancer Detection using Deep Learning (CNN)
+# Lung Cancer Detection using Deep Learning (CNN)
 
 This project presents a **Deep Learning-based Lung Cancer Detection System** that classifies CT scan images into three categories:
 
@@ -120,8 +120,6 @@ These metrics help measure the model’s effectiveness in detecting lung cancer 
 ![Prediction Screenshot](assets/s5.png)
 
 ![Prediction Screenshot](assets/s6.png)
-
-![Prediction Screenshot](assets/s7.png)
 
 ![Prediction Screenshot](assets/s9.png)
 
